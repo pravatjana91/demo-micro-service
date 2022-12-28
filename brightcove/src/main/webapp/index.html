@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Related Videos by Tags using Playback API</title>
+
+
+  <script>
+
+
+
+  </script>
+
+
+</head>
+
+<body>
+
+
+
+<a href="https://codepen.io/team/rcrooks1969/pen/POWyeR" target="_blank"> code pen link</a>
+
+  <!-- styles for the overlay plugin -->
+  <link href="https://players.brightcove.net/videojs-overlay/2/videojs-overlay.css" rel="stylesheet">
+
+  <!-- player embed code with an id attribute -->
+  <video-js id="myPlayerID" data-video-id="5604123528001" data-account="1752604059001" data-player="default"
+    data-embed="default" data-application-id controls width="640" height="360"></video-js>
+  <script src="https://players.brightcove.net/1752604059001/default_default/index.min.js"></script>
+
+  <!-- styles for the overlay plugin -->
+  <script src="https://players.brightcove.net/videojs-overlay/2/videojs-overlay.min.js"></script>
+
+
+</body>
+
+<style>
+  /* * The body style is just for the
+ * background color of the codepen.
+ * Do not include in your code.
+ */
+  body {
+    background-color: #111;
+    color: #fff;
+  }
+
+  /*
+ * Styles essential to the sample
+ * are below
+ */
+  /* styling for the video thumbnails */
+  .video-thumbnail {
+    margin: 0;
+    padding: 0;
+    width: 190px;
+    height: 107px;
+    cursor: pointer;
+  }
+
+.anchorThubnail {
+    cursor: pointer;
+    width: 200px;
+	display:inline-block;
+  text-decoration: none;
+
+  }
+
+ .video-thubnail-wrapper{
+  margin: 0;
+  width: 200px;
+ }
+ 
+ .video-thumbnail-banner{
+ 	display:block;
+  text-decoration: none;
+ }
+
+
+  /*override some of the default overlay styling*/
+  div.vjs-overlay.vjs-overlay-top-left {
+    width: 100%;
+    left: 0;
+  }
+</style>
+
+<script type="text/javascript">
+
+  var myPlayer,
+    requestData,
+    apiBaseURL = 'https://edge.api.brightcove.com/playback/v1/accounts/',
+    policyKey = "BCpkADawqM1eifBpAkEr4aJrH9i950qErQCg8FvHXBCigF0JjC-zZyhN4T1XGGGBbB0hojevaABtp54BTvT9Er0KplSpC6tqm8YgyCtIzGl5sc77i23GLWYdpLdtF7Aei45EuLqlUznlkiXU",
+    videoData = [];
+
+  //+++ Wait for loadedmetadata +++
+  /**
+  * wait for the video metadata to load
+  */
+  videojs.getPlayer('myPlayerID').one('loadedmetadata', function () {
+    myPlayer = this;
+    // set up the Playback API request
+    requestData = setRequestData();
+    // make the Playback API request
+    getRelatedVideos(requestData, function (relatedVideos) {
+      // extract the needed video data into an array
+      videoData = extractVideoData(relatedVideos);
+      // generate the HTML for the overlay
+      videoList = createVideoList(videoData,0);
+      // add the overlay
+      addOverlayText(videoList);
+    });
+
+  });
+
+  //+++ Setup the API request +++
+  /**
+  * set up the Playback API request
+  */
+  function setRequestData() {
+    var endPoint = '',
+      accountId,
+      videoName,
+      requestURL,
+      endPoint,
+      tagValue,
+      requestData = {},
+      dataReturned = false;
+
+    // use the mediainfo object to get the account id, tag value and video name for the video currently loaded in the player
+    accountId = myPlayer.mediainfo.account_id;
+    tagValue = myPlayer.mediainfo.tags[0];
+    videoName = myPlayer.mediainfo.name;
+
+    // add the account id and videos search term to the base URL. Note that your policy key needs to be enabled for search or you will get an error with the request.
+    requestURL = apiBaseURL + accountId + '/videos';
+    // return up to 9 videos which have a tag value equal to the current video, excluding the current video by name
+    endPoint = '?q=tags:"' + tagValue + '" -name:"' + videoName + '"&limit=9';
+
+    // add the query string to the request URL
+    requestData.url = requestURL + endPoint;
+    // set the request type to GET
+    requestData.requestType = 'GET';
+    return requestData;
+  }
+
+  //+++ Make the Playback API request +++
+  /**
+  * request data from the Playback API
+  */
+  getRelatedVideos = function (options, callback) {
+    var httpRequest = new XMLHttpRequest(),
+      responseData,
+      parsedData,
+      // response handler
+      getResponse = function () {
+        try {
+          if (httpRequest.readyState === 4) {
+            if (httpRequest.status >= 200 && httpRequest.status < 300) {
+              responseData = httpRequest.responseText;
+              parsedData = JSON.parse(responseData);
+
+              callback(parsedData);
+            } else {
+              alert('There was a problem with the request. Request returned ' + httpRequest.status);
+            }
+          }
+        } catch (e) {
+          alert('Caught Exception: ' + e);
+        }
+      };
+    // set the response handler
+    httpRequest.onreadystatechange = getResponse;
+    // open the request
+    httpRequest.open('GET', requestData.url);
+    // set the headers
+    httpRequest.setRequestHeader('Accept', 'application/json;pk=' + policyKey);
+    // open and send the request
+    httpRequest.send();
+  };
+
+  //+++ Format the overlay content +++
+  /**
+  * extract video data from Playback API response
+  * @param {array} playbackData the data from the Playback API
+  * @return {array} videoData array of video info
+  */
+  function extractVideoData(playbackData) {
+
+	    for (var i = 0; i < playbackData.videos.length; i++) {
+	      if (( playbackData.videos[i].id !== null && playbackData.videos[i].id !== undefined) && ( playbackData.videos[i].thumbnail !== null && playbackData.videos[i].thumbnail !== undefined)) {
+	       let videoItem = {};
+	        videoItem.id = playbackData.videos[i].id;
+	        videoItem.name = playbackData.videos[i].name;
+	        videoItem.thumbnail = playbackData.videos[i].thumbnail;
+	        videoData.push(videoItem);
+	      }
+	    }
+	    return videoData;
+}
+
+  /**
+  * create the html for the overlay
+  * @param {array} videoData array of video objects
+  * @return {HTMLElement} videoList the div element containing the overlay
+  */
+  function createVideoList(videoData,videoIndex) {
+    var i,
+      iMax = videoData.length,
+      videoList = createEl('div', {
+        id: 'videoList'
+      }),
+      videoWrapper = createEl('div'),
+      thumbnailLink,
+      thumbnailImage,anchorInnerDiv,videoThumbnailBanner;
+
+
+      var header1=  createEl('h1');
+    addText(header1,"Related videos");
+    videoWrapper.appendChild(header1);
+
+    videoList.appendChild(videoWrapper);
+    for (i = 0; i < iMax; i++) {
+     
+    	if (! (i === videoIndex)) continue;
+    	
+      thumbnailLink = createEl('a', {
+        href: 'javascript:loadAndPlay(' + videoData[i].id + ')',
+        class:'anchorThubnail'
+      });
+      
+       anchorInnerDiv = createEl('span', {
+          class:'video-thubnail-wrapper'
+      });
+      
+      
+      thumbnailImage = createEl('img', {
+        class: 'video-thumbnail',
+        src: videoData[i].thumbnail
+      });
+      anchorInnerDiv.appendChild(thumbnailImage);
+
+       videoThumbnailBanner = createEl('span', {
+          class:'video-thumbnail-banner'
+      });
+      addText(videoThumbnailBanner,videoData[i].name);
+      anchorInnerDiv.appendChild(videoThumbnailBanner);
+      
+      videoWrapper.appendChild(thumbnailLink);
+      thumbnailLink.appendChild(anchorInnerDiv);
+    }
+    return videoList;
+  }
+
+  
+  function createEl(type, attributes) {
+    var el,
+      attr;
+
+    el = document.createElement(type);
+    if (attributes !== null) {
+      for (attr in attributes) {
+        el.setAttribute(attr, attributes[attr]);
+      }
+      return el;
+    }
+  }
+
+  
+  function addText(el, str) {
+    el.appendChild(document.createTextNode(str));
+  }
+
+  
+  function addOverlayText(overlayContent) {
+	  myPlayer.overlay({
+	    overlays: [{
+	      content: overlayContent,
+	      "start": "ended",
+	      "end": "play"
+	    }]
+	  });
+	}
+
+  
+  loadAndPlay = function (idx) {
+	  debugger;
+    var currentId = idx;
+    myPlayer.catalog.getVideo(currentId, function (error, video) {
+      try {
+        myPlayer.catalog.load(video);
+      } catch (e) {
+        myPlayer.catalog.load(video);
+      }
+      myPlayer.play();
+    });
+    
+    var relatedPos=-1;
+    for (i = 0; i < videoData.length; i++) {
+    	console.log(videoData[i].id +">"+currentId  );
+    	if ( videoData[i].id == currentId ) {
+    		relatedPos=i;
+    	}
+    }
+    
+    if(relatedPos!= -1 && relatedPos <videoData.length ){
+    	
+    	// generate the HTML for the overlay
+        videoList = createVideoList(videoData,relatedPos+1);
+        // add the overlay
+        addOverlayText(videoList);
+    }
+    
+ 
+  }
+  
+    
+
+</script>
+
+</html>

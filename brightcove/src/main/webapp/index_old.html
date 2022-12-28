@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Related Videos by Tags using Playback API</title>
+  <link href="https://players.brightcove.net/videojs-overlay/2/videojs-overlay.css" rel="stylesheet">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<script>
+
+
+
+</script>
+
+
+</head>
+
+<body>
+
+  <!-- styles for the overlay plugin -->
+  <link href="https://players.brightcove.net/videojs-overlay/2/videojs-overlay.css" rel="stylesheet">
+
+  <!-- player embed code with an id attribute -->
+  <video-js id="myPlayerID" data-video-id="5604123528001" data-account="1752604059001" data-player="default"
+    data-embed="default" data-application-id controls width="640" height="360"></video-js>
+  
+  <script src="https://players.brightcove.net/1752604059001/default_default/index.min.js"></script>
+
+  <!-- styles for the overlay plugin -->
+  <script src="https://players.brightcove.net/videojs-overlay/2/videojs-overlay.min.js"></script>
+ 
+ 
+ <p>ddddd</p>
+
+
+ <div id="overLayTextDataId"></div>
+ 
+ 
+</body>
+
+<script type="text/javascript">
+
+
+
+
+
+  var myPlayer,
+    requestData,
+    apiBaseURL = 'https://edge.api.brightcove.com/playback/v1/accounts/',
+    policyKey = "BCpkADawqM1eifBpAkEr4aJrH9i950qErQCg8FvHXBCigF0JjC-zZyhN4T1XGGGBbB0hojevaABtp54BTvT9Er0KplSpC6tqm8YgyCtIzGl5sc77i23GLWYdpLdtF7Aei45EuLqlUznlkiXU",
+    videoData = [];
+
+  //+++ Wait for loadedmetadata +++
+  /**
+  * wait for the video metadata to load
+  */
+
+  videojs.getPlayer('myPlayerID').one('loadedmetadata', function () {
+    myPlayer = this;
+    
+    
+    let accountId = myPlayer.mediainfo.account_id;
+    let tagValue = myPlayer.mediainfo.tags[0];
+    let videoName = myPlayer.mediainfo.name;
+    
+  //  sentAPIRequest(accountId,tagValue,videoName,10,relatedVideosAnno);
+     sentAPIRequest(accountId,tagValue,videoName,10,function (relatedVideos) {
+ 	  	debugger
+	      // extract the needed video data into an array
+	      videoData = extractVideoData(relatedVideos);
+	      // generate the HTML for the overlay
+	      videoList = createVideoList(videoData);
+
+
+
+        var  overLayTextDataId = document.getElementById('overLayTextDataId');
+      
+        overLayTextDataId.appendChild(videoList);
+
+	      // add the overlay
+	     // addOverlayText(videoList);
+	    });
+
+
+  });
+
+  sentAPIRequest = function (accountId,tagName,videoName,limit,myFunction ){
+		debugger;
+		var http = new XMLHttpRequest();
+		var url = "http://localhost:8080/relatedVideoData";
+		var params = JSON.stringify({ 'accountId':  accountId ,'tagName':tagName,'videoName':videoName,'limit':limit});
+		
+		http.open("POST", url, true);
+
+		http.setRequestHeader("Content-type", "application/json; charset=utf-8");
+
+		http.onreadystatechange = function() {
+		    if(http.readyState == 4 && http.status == 200) {
+		        alert(http.responseText);
+		        
+		       let responseData = http.responseText;
+	         let  parsedData = JSON.parse(responseData);
+	         myFunction(parsedData);
+		    }
+		}
+		http.send(params);
+		
+	}
+
+  //+++ Format the overlay content +++
+  /**
+  * extract video data from Playback API response
+  * @param {array} playbackData the data from the Playback API
+  * @return {array} videoData array of video info
+  */
+  function extractVideoData(playbackData) {
+   
+
+    for (var i = 0; i < playbackData.videos.length; i++) {
+      if (( playbackData.videos[i].id !== null && playbackData.videos[i].id !== undefined) && ( playbackData.videos[i].thumbnail !== null && playbackData.videos[i].thumbnail !== undefined)) {
+       let videoItem = {};
+        videoItem.id = playbackData.videos[i].id;
+        videoItem.name = playbackData.videos[i].name;
+        videoItem.thumbnail = playbackData.videos[i].thumbnail;
+        videoData.push(videoItem);
+      }
+    }
+    return videoData;
+  }
+
+  /**
+  * create the html for the overlay
+  * @param {array} videoData array of video objects
+  * @return {HTMLElement} videoList the div element containing the overlay
+  */
+  function createVideoList(videoData) {
+    var  videoList = createEl('div', {
+        id: 'videoList'
+      }),
+      videoWrapper = createEl('div'),
+      thumbnailLink,
+      thumbnailImage;
+    
+    var header1=  createEl('h1');
+    addText(header1,"Related videos");
+    videoWrapper.appendChild(header1);
+
+    videoList.appendChild(videoWrapper);
+
+    alert(videoData.length );
+    for (var i = 0; i < videoData.length ; i++) {
+      thumbnailLink = createEl('a', {
+        href: 'javascript:loadAndPlay(' + i + ')',
+        class:'anchorThubnail'
+      });
+
+      var anchorInnerDiv = createEl('span', {
+          class:'video-thubnail-wrapper'
+      });
+      thumbnailImage = createEl('img', {
+        class: 'video-thumbnail',
+        src: videoData[i].thumbnail,
+        style:'width:190px;float:left;'
+      });
+      
+      
+
+      
+      anchorInnerDiv.appendChild(thumbnailImage);
+      
+      var videoThumbnailBanner = createEl('span', {
+          class:'video-thumbnail-banner'
+      });
+      addText(videoThumbnailBanner,videoData[i].name);
+      anchorInnerDiv.appendChild(videoThumbnailBanner);
+      
+      
+
+      videoWrapper.appendChild(thumbnailLink);
+      thumbnailLink.appendChild(anchorInnerDiv);
+
+     
+
+    }
+    return videoList;
+  }
+
+  /**
+  * create an element
+  *
+  * @param  {string} type - the element type
+  * @param  {object} attributes - attributes to add to the element
+  * @return {HTMLElement} the HTML element
+  */
+  function createEl(type, attributes) {
+    var el,
+      attr;
+
+    el = document.createElement(type);
+    if (attributes !== null) {
+      for (attr in attributes) {
+        el.setAttribute(attr, attributes[attr]);
+      }
+      return el;
+    }
+  }
+
+  /**
+  * add text content to an element
+  * @param {HTMLElement} el the element
+  * @param {string} str the text content
+  */
+  function addText(el, str) {
+    el.appendChild(document.createTextNode(str));
+  }
+
+  /**
+  * intialize the overlay plugin with the related video thumbnails
+  * @param {HTML} overlayContent the HTML for the overlay
+  */
+  function addOverlayText(overlayContent) {
+	  myPlayer.overlay({
+	    overlays: [{
+	      content: overlayContent,
+	      "start": "ended",
+	      "end": "play"
+	    }]
+	  });
+	}
+
+  //+++ Load and play related video +++
+  /**
+  * load and play a video
+  * this function called when thumbnails in the overlay are clicked
+  * @param {integer} idx the index of the video object in the videoData array
+  */
+  loadAndPlay = function (idx) {
+    var currentId = videoData[idx].id;
+    myPlayer.catalog.getVideo(currentId, function (error, video) {
+      try {
+        myPlayer.catalog.load(video);
+      } catch (e) {
+        myPlayer.catalog.load(video);
+      }
+      myPlayer.play();
+    });
+  }
+
+
+</script>
+
+<style>
+  /* * The body style is just for the
+ * background color of the codepen.
+ * Do not include in your code.
+ */
+  body {
+    background-color: #111;
+    color: #fff;
+  }
+
+  /*
+ * Styles essential to the sample
+ * are below
+ */
+  /* styling for the video thumbnails */
+  .video-thumbnail {
+    margin: 0;
+    padding: 0;
+    width: 190px;
+    height: 107px;
+    cursor: pointer;
+  }
+
+  .anchorThubnail {
+    cursor: pointer;
+    width: 200px;
+	display:inline-block;
+  text-decoration: none;
+
+  }
+
+ .video-thubnail-wrapper{
+  margin: 0;
+  width: 200px;
+ }
+ 
+ .video-thumbnail-banner{
+ 	display:block;
+  text-decoration: none;
+ }
+
+  /*override some of the default overlay styling*/
+  div.vjs-overlay.vjs-overlay-top-left {
+    width: 100%;
+    left: 0;
+  }
+</style>
+
+</html>

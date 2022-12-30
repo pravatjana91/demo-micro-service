@@ -9,9 +9,11 @@ import org.springframework.web.bind.annotation.*;
 import com.td.departmentmicroservice.entity.DepartmentEntity;
 import com.td.departmentmicroservice.entity.service.DepartmentService;
 
+import lombok.extern.slf4j.Slf4j;
+
 @RestController
 @RequestMapping("/departments")
-
+//@Slf4j
 public class DepartmentController {
     private static final Logger log = LoggerFactory.getLogger(DepartmentController.class);
     

@@ -13,9 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/departments")
-//@Slf4j
+@Slf4j
 public class DepartmentController {
-    private static final Logger log = LoggerFactory.getLogger(DepartmentController.class);
     
     @Autowired
     private DepartmentService departmentService;

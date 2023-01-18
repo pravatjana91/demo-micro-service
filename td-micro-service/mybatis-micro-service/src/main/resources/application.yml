@@ -1,0 +1,18 @@
+server:
+    port: 8080
+    
+spring:
+    application:
+        name: DEPARTMENT-SERVICE
+    datasource:
+        driverClassName: org.mariadb.jdbc.Driver
+        password: ''
+        testWhileIdle: true
+        url: jdbc:mariadb://127.0.0.1:3306/mybatis
+        username: root
+        validationQuery: SELECT 1
+        
+mybatis:
+    config-location: classpath:mybatis/mybatis-config.xml
+    mapper-locations: classpath:mybatis/mapper/*.xml
+    type-aliases-package: com.td.mybatismicroservice.dto

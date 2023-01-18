@@ -8,6 +8,7 @@ spring:
   zipkin:
     base-url: http://127.0.0.1:9411/
 
+management.endpoints.web.exposure.include: "*" 
 #eureka:
 #  client:
 #    register-with-eureka: true
@@ -16,3 +17,5 @@ spring:
 #      defaultZone: http://localhost:8761/eureka/
 #  instance:
 #    hostname: localhost
+#-Dserver.port=9005
+#java -jar -Dserver.port=9005 department-micro-service-0.0.1-SNAPSHOT.jar

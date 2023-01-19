@@ -3,14 +3,12 @@ server:
     
 spring:
     application:
-        name: DEPARTMENT-SERVICE
+        name: MYBATIS-SERVICE
     datasource:
-        driverClassName: org.mariadb.jdbc.Driver
+        driverClassName: org.h2.Driver
         password: ''
-        testWhileIdle: true
-        url: jdbc:mariadb://127.0.0.1:3306/mybatis
-        username: root
-        validationQuery: SELECT 1
+        url: jdbc:h2:mem:testdb
+        username: sa
         
 mybatis:
     config-location: classpath:mybatis/mybatis-config.xml

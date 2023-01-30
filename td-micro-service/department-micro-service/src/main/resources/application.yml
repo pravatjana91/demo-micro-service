@@ -1,21 +1,9 @@
 spring:
   application:
     name: DEPARTMENT-SERVICE
-  cloud:
-    config:
-      enabled: true
-      uri: http://localhost:8888
+  config:
+      import: optional:configserver:http://localhost:8889
   zipkin:
     base-url: http://127.0.0.1:9411/
 
 management.endpoints.web.exposure.include: "*" 
-#eureka:
-#  client:
-#    register-with-eureka: true
-#    fetch-registry: true
-#    service-url:
-#      defaultZone: http://localhost:8761/eureka/
-#  instance:
-#    hostname: localhost
-#-Dserver.port=9005
-#java -jar -Dserver.port=9005 department-micro-service-0.0.1-SNAPSHOT.jar

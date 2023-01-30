@@ -4,13 +4,11 @@ server:
 spring:
   application:
     name: USER-SERVICE
-  cloud:
-    config:
-      enabled: true
-      uri: http://localhost:8888
+  config:
+    import: optional:configserver:http://localhost:8889
   zipkin:
     base-url: http://127.0.0.1:9411/
-
+ 
 management.endpoints.web.exposure.include: "*" 
 
 #eureka:

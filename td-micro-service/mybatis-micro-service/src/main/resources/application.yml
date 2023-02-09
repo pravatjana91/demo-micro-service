@@ -4,6 +4,8 @@ server:
 spring:
     application:
         name: MYBATIS-SERVICE
+    config:
+      import: optional:configserver:http://localhost:8889
     datasource:
         driverClassName: org.h2.Driver
         password: ''

@@ -1,0 +1,30 @@
+server:
+    port: 8080
+    
+spring:
+    application:
+        name: MYBATIS-SERVICE
+    datasources:
+        firstdb:
+            driver-class-name: org.mariadb.jdbc.Driver
+            jdbc-url: 'jdbc:mariadb://localhost:3306/mybatis'
+            username: 'root'
+            password: ''
+            maximum-pool-size: 50
+            max-lifetime: 30000
+            idle-timeout: 28000
+            connection-timeout: 0
+        seconddb:
+            driver-class-name: org.mariadb.jdbc.Driver
+            jdbc-url: 'jdbc:mariadb://localhost:3306/mybatis2'
+            username: 'root'
+            password: ''
+            maximum-pool-size: 50
+            max-lifetime: 30000
+            idle-timeout: 28000
+            connection-timeout: 0
+        
+mybatis-details:
+    config-location: classpath:mybatis/mybatis-config.xml
+    mapper-locations: classpath:mybatis/mapper/*.xml
+    type-aliases-package: com.td.mybatismicroservice.dto

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+
+<script type="text/javascript">
+
+   function test() {
+      document.getElementById("responseJsonData").value ="";
+      
+      if (document.getElementById("teamName").value == "" ) {
+					window.alert("Please enter team name.");
+					document.getElementById("teamName").focus();
+					return false;
+		}
+
+      if (document.getElementById("srcEnv").value == "" ) {
+					window.alert("Please enter source environment");
+					document.getElementById("srcEnv").focus();
+					return false;
+		}
+
+      if (document.getElementById("destEnv").value == "" ) {
+					window.alert("Please enter Destination Environment");
+					document.getElementById("destEnv").focus();
+					return false;
+		}
+
+      if (document.getElementById("itemwithClild").value == "" ) {
+					window.alert("Please enter Item with child");
+					document.getElementById("itemwithClild").focus();
+					return false;
+		}
+
+      if (document.getElementById("itemwithOutClild").value == "" ) {
+					window.alert("Please enter Item with  out child");
+					document.getElementById("itemwithOutClild").focus();
+					return false;
+		}
+
+      var jsonData = {};
+
+      jsonData["teamname"]= document.getElementById("teamName").value;
+      jsonData["screnv"]= document.getElementById("srcEnv").value;
+      jsonData["destEnv"]= document.getElementById("destEnv").value;
+
+      jsonData["itemwithClild"] = document.getElementById("itemwithClild").value.split("\n").map(s=> s.trim()).filter(s=>s.length > 0 );
+   
+
+      jsonData["itemwithOutClild"]  = document.getElementById("itemwithOutClild").value.split("\n").map(s=> s.trim()).filter(s=>s.length > 0 );
+      
+      
+      document.getElementById("responseJsonData").innerHTML =syntaxHighlight(JSON.stringify(jsonData,  undefined, 4));
+
+     // alert(JSON.stringify(jsonData));
+
+      return false;
+
+   }
+
+</script>
+<style >
+
+* {
+  box-sizing: border-box;
+}
+
+/* Create two equal columns that floats next to each other */
+.column {
+  float: left;
+  width: 50%;
+  padding: 10px;
+}
+
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.column label { text-align: right;float: right; }
+
+input:focus,textarea:focus {
+  background-color: gray;
+}
+</style>
+
+<body>
+
+   <h1>Test Json Stringify with formatting</h1>
+
+   <form  name="RegForm"  action="" onsubmit="return false">
+      <fieldset >
+         <legend>Personal Data:</legend>
+
+
+         <div class="row">
+            <div class="column">
+               <label for="teamName">Team Name:</label>
+            </div>
+            <div class="column" >
+               <input type="text" value="team Abc" id="teamName" name="teamName">
+            </div>
+          </div>
+
+
+          <div class="row">
+            <div class="column">
+               <label for="srcEnv">Source Environment :</label>
+            </div>
+            <div class="column" >
+               <input type="text" value="src dev" id="srcEnv" name="srcEnv">
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="column">
+               <label for="destEnv">Destination Environment :</label>
+            </div>
+            <div class="column" >
+               <input type="text" value="dest prod" id="destEnv" name="destEnv">
+            </div>
+          </div>
+         
+
+        
+          <div class="row">
+            <div class="column">
+               <label for="itemwithClild">Item with Clild :</label>
+            </div>
+            <div class="column" >
+               <textarea id="itemwithClild" name="itemwithClild" cols="20" rows="5">item with child</textarea>
+            </div>
+          </div>
+        
+          <div class="row">
+            <div class="column">
+               <label for="itemwithOutClild">Item with Clild :</label>
+        
+            </div>
+            <div class="column" >
+               <textarea id="itemwithOutClild"    name="itemwithOutClild" cols="20" rows="5">item with out child</textarea>
+            </div>
+          </div>
+        
+
+         
+          <div class="row">
+            <div class="column">
+              .
+            </div>
+            <div class="column" >
+               <input type="submit" value="Submit" onclick="JavaScript:test();" />
+
+            </div>
+          </div>
+         
+          <div class="row">
+            <div class="column">
+               <label >JSON output is -> :</label>
+            </div>
+            <div class="column" >
+               <pre  style="text-align: left;" id="responseJsonData"> </pre>
+
+            </div>
+          </div>
+       
+
+        
+
+
+        
+
+         
+      </fieldset>
+   </form>
+
+</body>
+
+<!-- Syntax heighligt code  start-->
+<style>
+
+   .string { color: green; }
+   .number { color: darkorange; }
+   .boolean { color: blue; }
+   .null { color: magenta; }
+   .key { color: red; }
+   </style>
+   
+   <script>
+   
+      
+   function syntaxHighlight(json) {
+       json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+       return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+           var cls = 'number';
+           if (/^"/.test(match)) {
+               if (/:$/.test(match)) {
+                   cls = 'key';
+               } else {
+                   cls = 'string';
+               }
+           } else if (/true|false/.test(match)) {
+               cls = 'boolean';
+           } else if (/null/.test(match)) {
+               cls = 'null';
+           }
+           return '<span class="' + cls + '">' + match + '</span>';
+       });
+   }
+   
+   </script>
+<!-- Syntax heighligt code  End-->
+
+</html>

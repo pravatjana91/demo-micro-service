@@ -39,19 +39,19 @@
       var jsonData = {};
 
       jsonData["teamname"] = document.getElementById("teamName").value;
-      jsonData["screnv"] = document.getElementById("srcEnv").value;
-      jsonData["destEnv"] = document.getElementById("destEnv").value;
+      jsonData["source"] = document.getElementById("srcEnv").value;
+      jsonData["destination"] = document.getElementById("destEnv").value;
 
-      jsonData["itemwithClild"] = document.getElementById("itemwithClild").value.split("\n").map(s => s.trim()).filter(s => s.length > 0);
-
-
-      jsonData["itemwithOutClild"] = document.getElementById("itemwithOutClild").value.split("\n").map(s => s.trim()).filter(s => s.length > 0);
+      let itemwithClild = document.getElementById("itemwithClild").value.split("\n").map(s => s.trim()).filter(s => s.length > 0).map(s => s.concat('\\jcr:content'));
 
 
+     let itemwithOutClild = document.getElementById("itemwithOutClild").value.split("\n").map(s => s.trim()).filter(s => s.length > 0);
+
+     jsonData["items"] =[...itemwithClild,...itemwithOutClild];
       document.getElementById("responseJsonData").innerHTML = syntaxHighlight(JSON.stringify(jsonData, undefined, 4));
 
       // alert(JSON.stringify(jsonData));
-      downloadFile(JSON.stringify(jsonData, undefined, 4),'myData.json' );
+      downloadFile(JSON.stringify(jsonData, undefined, 4),jsonData["teamname"]+'-'+jsonData["source"]+'-' +jsonData["destination"]+'-'+ Date.now()+'.json');
       return false;
 
    }

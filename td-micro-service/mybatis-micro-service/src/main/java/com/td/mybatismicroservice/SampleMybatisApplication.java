@@ -16,6 +16,7 @@ public class SampleMybatisApplication {
   public static void main(String[] args) {
     SpringApplication.run(SampleMybatisApplication.class, args);
   }
+  
 
 
 }

@@ -305,7 +305,10 @@
    }
 
 
-   function downloadPackage() {
+
+   
+
+   function downloadPackageNew() {
       // WARNING: For GET requests, body is set to null by browsers.
 
       var xhr = new XMLHttpRequest();
@@ -313,7 +316,13 @@
       xhr.responseType = 'blob';
       xhr.addEventListener("readystatechange", function () {
          if (this.readyState === 4) {
-            console.log(this.responseText);
+            console.log(this.response);
+			 const href = URL.createObjectURL(this.response);
+			  const a = Object.assign(document.createElement("a"), { href, style: "display:none", download: 'abcd.zip' });
+			  document.body.appendChild(a);
+			  a.click();
+			  URL.revokeObjectURL(href);
+			  a.remove();
          }
       });
 
@@ -322,7 +331,6 @@
 
       xhr.send();
    }
-
 
    function uploadPackage() {
 

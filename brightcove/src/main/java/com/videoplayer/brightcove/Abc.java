@@ -4,12 +4,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Base64;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 
@@ -49,6 +52,29 @@ public class Abc {
 		String basicAuth = Base64.getEncoder().encodeToString(message);
 		httpConn.setRequestProperty("Authorization", "Basic " + basicAuth);
 
+		httpConn.setDoOutput(true);
+		
+		Map<String,String> params = new LinkedHashMap<>();
+		
+		  params.put("path", "/etc/packages/my_packages/testpackage.zip");
+	      params.put("packageName", "testpackage");
+	      params.put("groupName", "my_packages");
+	      params.put("filter", "[{\"root\" : \"/content/tdcom/ca/en/investing/qa-testing/jcr:content\", \"rules\": []},{\"root\" : \"/content/tdcom/ca/en/investing/pravat/jcr:content\", \"rules\": []},{\"root\" : \"/content/tdcom/ca/en/investing\", \"rules\": []}]");
+	      params.put("_charset_", "UTF-8");
+
+        StringBuilder postData = new StringBuilder();
+        for (String param : params.keySet()) {
+            if (postData.length() != 0) postData.append('&');
+            postData.append(URLEncoder.encode(param, "UTF-8"));
+            postData.append('=');
+            postData.append(URLEncoder.encode(String.valueOf(params.get(param)), "UTF-8"));
+        }
+        byte[] postDataBytes = postData.toString().getBytes("UTF-8");
+        httpConn.getOutputStream().write(postDataBytes);
+        
+		httpConn.getOutputStream().close();
+
+		
 		InputStream responseStream = httpConn.getResponseCode() / 100 == 2
 				? httpConn.getInputStream()
 				: httpConn.getErrorStream();

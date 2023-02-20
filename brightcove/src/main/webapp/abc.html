@@ -45,13 +45,13 @@
       let itemwithClild = document.getElementById("itemwithClild").value.split("\n").map(s => s.trim()).filter(s => s.length > 0).map(s => s.concat('\\jcr:content'));
 
 
-     let itemwithOutClild = document.getElementById("itemwithOutClild").value.split("\n").map(s => s.trim()).filter(s => s.length > 0);
+      let itemwithOutClild = document.getElementById("itemwithOutClild").value.split("\n").map(s => s.trim()).filter(s => s.length > 0);
 
-     jsonData["items"] =[...itemwithClild,...itemwithOutClild];
+      jsonData["items"] = [...itemwithClild, ...itemwithOutClild];
       document.getElementById("responseJsonData").innerHTML = syntaxHighlight(JSON.stringify(jsonData, undefined, 4));
 
       // alert(JSON.stringify(jsonData));
-      downloadFile(JSON.stringify(jsonData, undefined, 4),jsonData["teamname"]+'-'+jsonData["source"]+'-' +jsonData["destination"]+'-'+ Date.now()+'.json');
+      downloadFile(JSON.stringify(jsonData, undefined, 4), jsonData["teamname"] + '-' + jsonData["source"] + '-' + jsonData["destination"] + '-' + Date.now() + '.json');
       return false;
 
    }
@@ -236,6 +236,173 @@
       });
    }
 
+
+   function hitServerCreatePackage() {
+
+      // WARNING: For POST requests, body is set to null by browsers.
+      var data = "packageName=testpackage&groupName=my_packages";
+
+      var xhr = new XMLHttpRequest();
+      xhr.withCredentials = true;
+
+      xhr.addEventListener("readystatechange", function () {
+         if (this.readyState === 4) {
+            console.log(this.responseText);
+         }
+      });
+
+      xhr.open("POST", "http://localhost:4502/crx/packmgr/service/.json/etc/packages/mycontent.zip?cmd=create");
+      xhr.setRequestHeader("Authorization", "Basic YWRtaW46YWRtaW4=");
+      xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+      xhr.send(data);
+   }
+
+
+   function hitServerToAddFileter() {
+
+      // WARNING: For POST requests, body is set to null by browsers.
+      var data = new FormData();
+      data.append("path", "/etc/packages/my_packages/testpackage.zip");
+      data.append("packageName", "testpackage");
+      data.append("groupName", "my_packages");
+      data.append("filter", "[{\"root\" : \"/content/tdcom/ca/en/investing/qa-testing/jcr:content\", \"rules\": []},{\"root\" : \"/content/tdcom/ca/en/investing/pravat/jcr:content\", \"rules\": []},{\"root\" : \"/content/tdcom/ca/en/investing\", \"rules\": []}]");
+      data.append("_charset_", "UTF-8");
+
+      var xhr = new XMLHttpRequest();
+      xhr.withCredentials = true;
+
+      xhr.addEventListener("readystatechange", function () {
+         if (this.readyState === 4) {
+            console.log(this.responseText);
+         }
+      });
+
+      xhr.open("POST", "http://localhost:4502/crx/packmgr/update.jsp");
+      xhr.setRequestHeader("Authorization", "Basic YWRtaW46YWRtaW4=");
+
+      xhr.send(data);
+
+   }
+
+   function buildPackage() {
+
+      // WARNING: For POST requests, body is set to null by browsers.
+
+      var xhr = new XMLHttpRequest();
+      xhr.withCredentials = true;
+
+      xhr.addEventListener("readystatechange", function () {
+         if (this.readyState === 4) {
+            console.log(this.responseText);
+         }
+      });
+
+      xhr.open("POST", "http://localhost:4502/crx/packmgr/service/.json/etc/packages/my_packages/testpackage.zip?cmd=build");
+      xhr.setRequestHeader("Authorization", "Basic YWRtaW46YWRtaW4=");
+
+      xhr.send();
+   }
+
+
+   function downloadPackage() {
+      // WARNING: For GET requests, body is set to null by browsers.
+
+      var xhr = new XMLHttpRequest();
+      xhr.withCredentials = true;
+      xhr.responseType = 'blob';
+      xhr.addEventListener("readystatechange", function () {
+         if (this.readyState === 4) {
+            console.log(this.responseText);
+         }
+      });
+
+      xhr.open("GET", "http://localhost:4502/etc/packages/my_packages/testpackage.zip");
+      xhr.setRequestHeader("Authorization", "Basic YWRtaW46YWRtaW4=");
+
+      xhr.send();
+   }
+
+
+   function uploadPackage() {
+
+      // WARNING: For GET requests, body is set to null by browsers.
+      var data = new FormData();
+      data.append("cmd", "upload");
+      data.append("force", "true");
+      data.append("package", fileInput.files[0], "/path/to/file");
+
+      var xhr = new XMLHttpRequest();
+      xhr.withCredentials = true;
+
+      xhr.addEventListener("readystatechange", function () {
+         if (this.readyState === 4) {
+            console.log(this.responseText);
+         }
+      });
+
+      xhr.open("GET", "http://localhost:4502/crx/packmgr/service/.json");
+      xhr.setRequestHeader("Authorization", "Basic YWRtaW46YWRtaW4=");
+
+      xhr.send(data);
+   }
+
+
+   function installPackageExample() {
+
+      // WARNING: For GET requests, body is set to null by browsers.
+      var data = new FormData();
+      data.append("cmd", "install");
+
+      var xhr = new XMLHttpRequest();
+      xhr.withCredentials = true;
+
+      xhr.addEventListener("readystatechange", function () {
+         if (this.readyState === 4) {
+            console.log(this.responseText);
+         }
+      });
+
+      xhr.open("GET", "http://localhost:4502/crx/packmgr/service/.json/etc/packages/my_packages/testpackage.zip");
+      xhr.setRequestHeader("Authorization", "Basic YWRtaW46YWRtaW4=");
+
+      xhr.send(data);
+
+
+   }
+
+function downloadFile(url, headers, filename) {
+
+  function handleFile(data) {
+    console.log(this.response || data);
+    var file = URL.createObjectURL(this.response || data);
+    filename = filename || url.split("/").pop();
+    var a = document.createElement("a");
+    // if `a` element has `download` property
+    if ("download" in a) {
+      a.href = file;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    } else {
+      // use `window.open()` if `download` not defined at `a` element
+      window.open(file)
+    }
+  }
+
+  var request = new XMLHttpRequest();
+  request.responseType = "blob";
+  request.onload = handleFile;
+  request.open("GET", url);
+  for (var prop in headers) {
+    request.setRequestHeader(prop, headers[prop]);
+  }
+
+  request.send();
+}
+
+//downloadFile("/path/to/resource/", {"x-content": "abc"}, "filename.zip")
 </script>
 <!-- Syntax heighligt code  End-->
 
